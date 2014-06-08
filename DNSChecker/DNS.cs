@@ -14,18 +14,19 @@ namespace DNSChecker
         Socket socket;
         IPAddress dnsserver;
         IPEndPoint dnsendpoint;
+        byte[] Send;
         public DNS()
         {
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, 100000);
             dnsserver = IPAddress.Parse("8.8.8.8");
             dnsendpoint = new IPEndPoint(dnsserver, 53);
-            GetIP("www.google.de");
+            GetIPv4("www.google.de");
         }
-        public void GetIP(string webaddress)
+        public void GetIPv4(string webaddress)
         {
-
-            byte[] Send = new byte[13 + webaddress.Length+5];
+            string[] addressparts = SplitAddress(webaddress);
+            Send = new byte[13 + GetTotalLength(addressparts) + 4];
             Send[0] = Convert.ToByte('x');
             Send[1] = Convert.ToByte('y');
             Send[2] = 1;
@@ -36,27 +37,39 @@ namespace DNSChecker
             {
                 Send[i] = 0;
             }
-            Send[12] = Convert.ToByte(webaddress.Length);
-            char[] charaddress = webaddress.ToArray();
-            List<byte> toconv = new List<byte>();
-            foreach (Char c in charaddress)
+            for (int i = 12; i < Send.Length; )
             {
-                toconv.Add(Convert.ToByte(c));
-            }
-            byte[] conv_address = toconv.ToArray();
-            for (int i = 13, j = 0; i < Send.Length && j < conv_address.Length; i++, j++)
-            {
-                Send[i] = conv_address[j];
+                int k = 13;
+                for (int j = 0; j < addressparts.Length; j++)
+                {
+
+                    char[] help = addressparts[j].ToArray();
+                    if (i < Send.Length)
+                    {
+                        Send[i] = Convert.ToByte(addressparts[j].Length);
+                        for (int l = 0; k < Send.Length && l < help.Length; k++, l++)
+                        {
+                            Send[k] = Convert.ToByte(help[l]);
+
+                        }
+                        i += addressparts[j].Length + 1;
+                        k++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+
+                }
+                break;
             }
             Send[Send.Length - 1] = 1;
             Send[Send.Length - 2] = 0;
-            Send[Send.Length - 3] = 0x1;
+            Send[Send.Length - 3] = 1;
             Send[Send.Length - 4] = 0;
-            Send[Send.Length - 5] = 0;
             socket.Connect(dnsendpoint);
             socket.SendTo(Send, dnsendpoint);
             byte[] rebuffer = new byte[170];
-            //List<byte> rebuffer = new List<byte>();
 
             socket.Receive(rebuffer, SocketFlags.None);
             string answer = "";
@@ -70,5 +83,29 @@ namespace DNSChecker
         }
 
 
+        public string[] SplitAddress(string webadress)
+        {
+            string[] addressparts = webadress.Split('.');
+            return addressparts;
+        }
+
+
+        public int GetTotalLength(string[] array)
+        {
+            int counter = 0;
+            for (int i = 0; i < array.Length; i++)
+            {
+                char[] help = array[i].ToArray();
+                foreach (char c in help)
+                {
+                    counter += 1;
+                }
+            }
+            counter += array.Length;
+            return counter;
+        }
+
+
     }
 }
+
