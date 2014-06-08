@@ -1,1 +1,9 @@
 C:\Users\Tobias\Documents\GitHub\DNSChecker\DNSChecker\bin\Debug\DNSChecker.exe.config
+C:\Users\Tobias\Documents\GitHub\DNSChecker\DNSChecker\bin\Debug\DNSChecker.exe
+C:\Users\Tobias\Documents\GitHub\DNSChecker\DNSChecker\bin\Debug\DNSChecker.pdb
+C:\Users\Tobias\Documents\GitHub\DNSChecker\DNSChecker\obj\Debug\DNSChecker.csprojResolveAssemblyReference.cache
+C:\Users\Tobias\Documents\GitHub\DNSChecker\DNSChecker\obj\Debug\DNSChecker.Form1.resources
+C:\Users\Tobias\Documents\GitHub\DNSChecker\DNSChecker\obj\Debug\DNSChecker.Properties.Resources.resources
+C:\Users\Tobias\Documents\GitHub\DNSChecker\DNSChecker\obj\Debug\DNSChecker.csproj.GenerateResource.Cache
+C:\Users\Tobias\Documents\GitHub\DNSChecker\DNSChecker\obj\Debug\DNSChecker.exe
+C:\Users\Tobias\Documents\GitHub\DNSChecker\DNSChecker\obj\Debug\DNSChecker.pdb
