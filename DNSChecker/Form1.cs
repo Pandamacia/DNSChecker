@@ -12,12 +12,10 @@ namespace DNSChecker
 {
     public partial class Form1 : Form
     {
-
+        DNS dns;
         public Form1()
         {
             InitializeComponent();
-            DNS dns = new DNS();
-            dns.ShowOutput += dns_ShowOutput;
         }
 
 
@@ -25,6 +23,13 @@ namespace DNSChecker
         {
             Action update = () => lblTest.Text = output;
             lblTest.BeginInvoke(update);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            dns = new DNS();
+            dns.ShowOutput += dns_ShowOutput;
+            dns.GetMailServer("bla@web.de");
         }
 
 

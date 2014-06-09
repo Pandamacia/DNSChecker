@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
+using System.Net.Mail;
 
 namespace DNSChecker
 {
@@ -22,7 +23,7 @@ namespace DNSChecker
         public event Output ShowOutput;
 
         string qtype;
-        string webadress;
+        string host;
         string answer;
         List<string> answers;
 
@@ -34,50 +35,76 @@ namespace DNSChecker
             dnsserver = IPAddress.Parse("8.8.8.8");
             dnsendpoint = new IPEndPoint(dnsserver, 53);
             OnReceive += DNS_OnReceive;
-            GetIPv4("www.google.de");
+            //GetIPv4("www.google.de");
             //GetMailServer("tobias.kokesch@gmx.net");
         }
 
 
         void DNS_OnReceive(byte[] receive)
         {
-            switch(qtype)
+            int startcounter = host.Length;
+            switch (qtype)
             {
-                case"A":
+                case "A":
                     //Header(13)+Counter after Address(1)+QTYPE(2)+QCLASS(2)+Offset(12)+Length of IP(1);
-                    int startcounter = 30 + webadress.Length;
-                    for (int i = startcounter; i < receive.Length;)
+                    startcounter = 30 + host.Length;
+                    for (int i = startcounter; i < receive.Length; )
                     {
-                        for (int j = 0; j < 4; j++, i++)
+                        for (int j = 0; j < 4 && i < receive.Length; j++, i++)
                         {
                             answer += Convert.ToString(receive[i]) + ".";
                         }
                         answers.Add(answer.TrimEnd('.'));
                         answer = "";
                         i += 12;//Offset
-                        
+
                     }
                     foreach (string s in answers)
                     {
-                        if (s != null)
+                        if (s != "0.0.0.0")
                         {
                             ShowOutput(s);
                         }
                     }
                     answer = "";
-                        break;
-                case"AAAA":
                     break;
-                case"MX":
+                case "AAAA":
+                    break;
+                case "MX":
+                    startcounter = host.Length + 33;
+                    for (int i = startcounter; i < receive.Length; i++)
+                    {
+
+                        if (receive[i] != 0)
+                        {
+                            if (receive[i] < 15)
+                            {
+                                answer += '.';
+                            }
+                            else if(receive[i]==192)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                answer += Convert.ToChar(receive[i]);
+                            }
+                        }
+                        
+                        //answer += Convert.ToChar(receive[i]);
+                    }
+                    
+                    ShowOutput(answer);
+                    answer = "";
                     break;
                 default:
                     break;
             }
         }
-        public void GetIPv4(string webaddress)
+        public void GetIPv4(string host)
         {
-            this.webadress = webaddress;
-            string[] addressparts = SplitAddress(webaddress);
+            this.host = host;
+            string[] addressparts = SplitAddress(host);
             Send = new byte[17 + GetTotalLength(addressparts)];
             SetHeader();
             for (int i = 12; i < Send.Length; )
@@ -107,11 +134,11 @@ namespace DNSChecker
             SendToDNS();
         }
 
-        public void GetIPv6(string webaddress)
+        public void GetIPv6(string host)
         {
-            this.webadress = webaddress;
-            string[] addressparts = SplitAddress(webaddress);
-            Send = new byte[13 + GetTotalLength(addressparts) + 4];
+            this.host = host;
+            string[] addressparts = SplitAddress(host);
+            Send = new byte[17 + GetTotalLength(addressparts)];
             SetHeader();
             for (int i = 12; i < Send.Length; )
             {
@@ -140,33 +167,25 @@ namespace DNSChecker
             SendToDNS();
         }
 
-        public void GetMailServer(string mail)
+        public void GetMailServer(string host)
         {
-            string[] addressparts = SplitAddress(mail);
-            Send = new byte[13 + GetTotalLength(addressparts) + 4];
+            MailAddress server = new MailAddress(host);
+            host = server.Host;
+            this.host = host;
+            Send = new byte[18 + host.Length];
             SetHeader();
-            for (int i = 12; i < Send.Length; )
+            for (int i = 0; i < host.Length; i++)
             {
-                int k = 13;
-                for (int j = 0; j < addressparts.Length; j++)
+                if (host[i] == '.')
                 {
-                    char[] help = addressparts[j].ToArray();
-                    if (i < Send.Length)
-                    {
-                        Send[i] = Convert.ToByte(addressparts[j].Length);
-                        for (int l = 0; k < Send.Length && l < help.Length; k++, l++)
-                        {
-                            Send[k] = Convert.ToByte(help[l]);
-                        }
-                        i += addressparts[j].Length + 1;
-                        k++;
-                    }
-                    else
-                    {
-                        break;
-                    }
+                    Send[12] = Convert.ToByte(i);
+                    Send[i + 13] = Convert.ToByte(host.Length - i - 1);
                 }
-                break;
+                else
+                {
+                    Send[i + 13] = Convert.ToByte(host[i]);
+                }
+
             }
             SetQType("MX");
             SendToDNS();
@@ -214,7 +233,7 @@ namespace DNSChecker
                 case "MX":
                     Send[Send.Length - 3] = 0xF;
                     Send[Send.Length - 4] = 0;
-                    qtype = "AAAA";
+                    qtype = "MX";
                     break;
                 default:
                     Send[Send.Length - 3] = 1;
