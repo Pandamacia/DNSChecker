@@ -16,16 +16,19 @@ namespace DNSChecker
         public Form1()
         {
             InitializeComponent();
-            cboAbfrageart.Items.Add("A");
-            cboAbfrageart.Items.Add("AAAA");
-            cboAbfrageart.Items.Add("MX");
-            cboAbfrageart.Items.Add("PTR");
-            cboAbfrageart.SelectedIndex = 0;
+            cboType.Items.Add("A");
+            cboType.Items.Add("AAAA");
+            cboType.Items.Add("MX");
+            cboType.Items.Add("PTR");
+            cboType.SelectedIndex = 0;
         }
         protected override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
-            dns.socket.Close();
+            if (dns!=null)
+            {
+                dns.socket.Close();
+            }
         }
         void dns_ShowOutput(string output)
         {
@@ -34,7 +37,6 @@ namespace DNSChecker
             Action newline = () => txtResult.AppendText("\n");
             txtResult.BeginInvoke(newline);
         }
-
         private void btnSend_Click(object sender, EventArgs e)
         {
             txtResult.Clear();
@@ -44,7 +46,7 @@ namespace DNSChecker
             {
                 try
                 {
-                    switch (Convert.ToString(cboAbfrageart.SelectedItem))
+                    switch (Convert.ToString(cboType.SelectedItem))
                     {
                         case "A":
                             dns.GetIPv4(txtHost.Text);
@@ -64,14 +66,17 @@ namespace DNSChecker
                 }
                 catch
                 {
-                    MessageBox.Show("Try again later.");
+                    MessageBox.Show("Try again in a few moments.");
                 }
             }
             else
             {
                 MessageBox.Show("Please fill all fields.");
             }
-
+        }
+        private void cboType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            txtHost.Clear();
         }
     }
 }

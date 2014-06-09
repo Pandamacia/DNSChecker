@@ -33,7 +33,7 @@ namespace DNSChecker
         {
             answers = new List<string>();
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, 100000);
+            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, 1000);
             dnsserver = IPAddress.Parse(dnsip);
             dnsendpoint = new IPEndPoint(dnsserver, 53);
             OnReceive += DNS_OnReceive;
@@ -114,12 +114,16 @@ namespace DNSChecker
                             {
                                 answer += '.';
                             }
-                            else if (receive[i] == 0)
-                                break;
+                            /*else if (receive[i] == 0 | receive[i] == 192)
+                                break;*/
                             else
                             {
                                 answer += Convert.ToChar(receive[i]);
                             }
+                        }
+                        else
+                        {
+                            break;
                         }
                     }
                     ShowOutput("Address: " + answer);

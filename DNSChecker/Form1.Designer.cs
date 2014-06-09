@@ -28,34 +28,34 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.lblAbfrageart = new System.Windows.Forms.Label();
+            this.lblTypeofLookup = new System.Windows.Forms.Label();
             this.lblHost = new System.Windows.Forms.Label();
             this.lblServer = new System.Windows.Forms.Label();
             this.btnSend = new System.Windows.Forms.Button();
-            this.cboAbfrageart = new System.Windows.Forms.ComboBox();
+            this.cboType = new System.Windows.Forms.ComboBox();
             this.txtHost = new System.Windows.Forms.TextBox();
             this.txtServer = new System.Windows.Forms.TextBox();
             this.txtResult = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
-            // lblAbfrageart
+            // lblTypeofLookup
             // 
-            this.lblAbfrageart.AutoSize = true;
-            this.lblAbfrageart.Location = new System.Drawing.Point(13, 27);
-            this.lblAbfrageart.Name = "lblAbfrageart";
-            this.lblAbfrageart.Size = new System.Drawing.Size(59, 13);
-            this.lblAbfrageart.TabIndex = 0;
-            this.lblAbfrageart.Text = "Abfrageart:";
+            this.lblTypeofLookup.AutoSize = true;
+            this.lblTypeofLookup.Location = new System.Drawing.Point(13, 27);
+            this.lblTypeofLookup.Name = "lblTypeofLookup";
+            this.lblTypeofLookup.Size = new System.Drawing.Size(85, 13);
+            this.lblTypeofLookup.TabIndex = 0;
+            this.lblTypeofLookup.Text = "Type of Lookup:";
             // 
             // lblHost
             // 
             this.lblHost.AutoSize = true;
             this.lblHost.Location = new System.Drawing.Point(13, 73);
             this.lblHost.Name = "lblHost";
-            this.lblHost.Size = new System.Drawing.Size(101, 13);
+            this.lblHost.Size = new System.Drawing.Size(55, 13);
             this.lblHost.TabIndex = 1;
-            this.lblHost.Text = "Hostname/Adresse:";
+            this.lblHost.Text = "Hostname";
             // 
             // lblServer
             // 
@@ -64,7 +64,7 @@
             this.lblServer.Name = "lblServer";
             this.lblServer.Size = new System.Drawing.Size(67, 13);
             this.lblServer.TabIndex = 2;
-            this.lblServer.Text = "DNS-Server:";
+            this.lblServer.Text = "DNS Server:";
             // 
             // btnSend
             // 
@@ -76,13 +76,15 @@
             this.btnSend.UseVisualStyleBackColor = true;
             this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
             // 
-            // cboAbfrageart
+            // cboType
             // 
-            this.cboAbfrageart.FormattingEnabled = true;
-            this.cboAbfrageart.Location = new System.Drawing.Point(168, 19);
-            this.cboAbfrageart.Name = "cboAbfrageart";
-            this.cboAbfrageart.Size = new System.Drawing.Size(121, 21);
-            this.cboAbfrageart.TabIndex = 4;
+            this.cboType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboType.FormattingEnabled = true;
+            this.cboType.Location = new System.Drawing.Point(168, 19);
+            this.cboType.Name = "cboType";
+            this.cboType.Size = new System.Drawing.Size(121, 21);
+            this.cboType.TabIndex = 4;
+            this.cboType.SelectedIndexChanged += new System.EventHandler(this.cboType_SelectedIndexChanged);
             // 
             // txtHost
             // 
@@ -127,11 +129,11 @@
             this.Controls.Add(this.txtResult);
             this.Controls.Add(this.txtServer);
             this.Controls.Add(this.txtHost);
-            this.Controls.Add(this.cboAbfrageart);
+            this.Controls.Add(this.cboType);
             this.Controls.Add(this.btnSend);
             this.Controls.Add(this.lblServer);
             this.Controls.Add(this.lblHost);
-            this.Controls.Add(this.lblAbfrageart);
+            this.Controls.Add(this.lblTypeofLookup);
             this.Name = "Form1";
             this.Text = "Form1";
             this.ResumeLayout(false);
@@ -141,11 +143,11 @@
 
         #endregion
 
-        private System.Windows.Forms.Label lblAbfrageart;
+        private System.Windows.Forms.Label lblTypeofLookup;
         private System.Windows.Forms.Label lblHost;
         private System.Windows.Forms.Label lblServer;
         private System.Windows.Forms.Button btnSend;
-        private System.Windows.Forms.ComboBox cboAbfrageart;
+        private System.Windows.Forms.ComboBox cboType;
         private System.Windows.Forms.TextBox txtHost;
         private System.Windows.Forms.TextBox txtServer;
         private System.Windows.Forms.TextBox txtResult;
