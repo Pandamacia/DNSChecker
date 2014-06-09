@@ -103,11 +103,11 @@
             // 
             // txtResult
             // 
-            this.txtResult.Location = new System.Drawing.Point(440, 37);
+            this.txtResult.Location = new System.Drawing.Point(377, 12);
             this.txtResult.Multiline = true;
             this.txtResult.Name = "txtResult";
             this.txtResult.ReadOnly = true;
-            this.txtResult.Size = new System.Drawing.Size(165, 109);
+            this.txtResult.Size = new System.Drawing.Size(267, 156);
             this.txtResult.TabIndex = 7;
             // 
             // label1
@@ -135,7 +135,7 @@
             this.Controls.Add(this.lblHost);
             this.Controls.Add(this.lblTypeofLookup);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "DNSChecker";
             this.ResumeLayout(false);
             this.PerformLayout();
 
