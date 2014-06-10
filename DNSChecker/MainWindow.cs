@@ -10,11 +10,11 @@ using System.Windows.Forms;
 
 namespace DNSChecker
 {
-    public partial class Form1 : Form
+    public partial class MainWindow : Form
     {
         DNS dns;
 
-        public Form1()
+        public MainWindow()
         {
             InitializeComponent();
             //Fill the combobox and set to first item
@@ -63,7 +63,7 @@ namespace DNSChecker
                 }
                 catch
                 {
-                    //Evades the exceeptions when too many queries are queued
+                    //Evades the exceptions when too many queries are queued
                     MessageBox.Show("Try again in a few moments and check your entries.");
                 }
             }

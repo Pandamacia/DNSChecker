@@ -31,8 +31,10 @@ namespace DNSChecker
         string host;
         string answer;
         List<string> answers;
-        #endregion
+        string ipversion;
+        int length;
         string[] domains = { ".com", ".de", ".net" ,".org"};
+        #endregion
         public DNS(string dnsip)
         {
             //Initialize declarations
@@ -212,47 +214,91 @@ namespace DNSChecker
             this.host = host;
             //Split into parts
             string[] addressparts = SplitAddress(host);
-            Send = new byte[30 + GetTotalLength(addressparts)/*Frame data + length of host*/];
-            //Write the host to the array in reversed order
-            for (int i = 12; i < Send.Length; )
+            if (host.Contains("."))
             {
-                int k = 13;
-                for (int j = addressparts.Length - 1; j >= 0; j--)
+                ipversion = "v4";
+                Send = new byte[30 + GetTotalLength(addressparts)/*Frame data + length of host*/];
+                //Write the host to the array in reversed order
+                for (int i = 12; i < Send.Length; )
                 {
-                    //Split the string of the addressparts to a char array
-                    char[] help = addressparts[j].ToArray();
-                    if (i < Send.Length)
+                    int k = 13;
+                    for (int j = addressparts.Length - 1; j >= 0; j--)
                     {
-                        Send[i] = Convert.ToByte(addressparts[j].Length);//Length of coming label
-                        for (int l = 0; k < Send.Length && l < help.Length; k++, l++)
+                        //Split the string of the addressparts to a char array
+                        char[] help = addressparts[j].ToArray();
+                        if (i < Send.Length)
                         {
-                            Send[k] = Convert.ToByte(help[l]);
+                            Send[i] = Convert.ToByte(addressparts[j].Length);//Length of coming label
+                            for (int l = 0; k < Send.Length && l < help.Length; k++, l++)
+                            {
+                                Send[k] = Convert.ToByte(help[l]);
+                            }
+                            //Set length label to begin of the next part
+                            i += addressparts[j].Length + 1;
+                            k++;
                         }
-                        //Set length label to begin of the next part
-                        i += addressparts[j].Length + 1;
-                        k++;
+                        else
+                        {
+                            break;
+                        }
                     }
-                    else
-                    {
-                        break;
-                    }
+                    break;
                 }
-                break;
+                //Frame data for a PTR request (all IP's should end to "in-addr.arpa")
+                Send[Send.Length - 18] = 7;
+                Send[Send.Length - 17] = Convert.ToByte('i');
+                Send[Send.Length - 16] = Convert.ToByte('n');
+                Send[Send.Length - 15] = Convert.ToByte('-');
+                Send[Send.Length - 14] = Convert.ToByte('a');
+                Send[Send.Length - 13] = Convert.ToByte('d');
+                Send[Send.Length - 12] = Convert.ToByte('d');
+                Send[Send.Length - 11] = Convert.ToByte('r');
+                Send[Send.Length - 10] = 4;
+                Send[Send.Length - 9] = Convert.ToByte('a');
+                Send[Send.Length - 8] = Convert.ToByte('r');
+                Send[Send.Length - 7] = Convert.ToByte('p');
+                Send[Send.Length - 6] = Convert.ToByte('a');
             }
-            //Frame data for a PTR request (all IP's should end to "in-addr.arpa")
-            Send[Send.Length - 18] = 7;
-            Send[Send.Length - 17] = Convert.ToByte('i');
-            Send[Send.Length - 16] = Convert.ToByte('n');
-            Send[Send.Length - 15] = Convert.ToByte('-');
-            Send[Send.Length - 14] = Convert.ToByte('a');
-            Send[Send.Length - 13] = Convert.ToByte('d');
-            Send[Send.Length - 12] = Convert.ToByte('d');
-            Send[Send.Length - 11] = Convert.ToByte('r');
-            Send[Send.Length - 10] = 4;
-            Send[Send.Length - 9] = Convert.ToByte('a');
-            Send[Send.Length - 8] = Convert.ToByte('r');
-            Send[Send.Length - 7] = Convert.ToByte('p');
-            Send[Send.Length - 6] = Convert.ToByte('a');
+            else if (host.Contains(":"))
+            {
+                ipversion = "v6";
+                length = GetTotalLength(addressparts);
+                Send = new byte[26 + GetTotalLength(addressparts)/*Frame data + length of host*/];
+                for (int i = 12; i < Send.Length; )
+                {
+                    int k = 13;
+                    for (int j = addressparts.Length - 1; j >= 0; j--)
+                    {
+                        //Split the string of the addressparts to a char array
+                        char[] help = addressparts[j].ToArray();
+                        if (i < Send.Length)
+                        {
+                            Send[i] = Convert.ToByte(addressparts[j].Length);//Length of coming label
+                            for (int l = 0; k < Send.Length && l < help.Length; k++, l++)
+                            {
+                                Send[k] = Convert.ToByte(help[l]);
+                            }
+                            //Set length label to begin of the next part
+                            i += addressparts[j].Length + 1;
+                            k++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    break;
+                }
+                Send[Send.Length - 14] = 3;
+                Send[Send.Length - 13] = Convert.ToByte('i');
+                Send[Send.Length - 12] = Convert.ToByte('p');
+                Send[Send.Length - 11] = Convert.ToByte('6');
+                Send[Send.Length - 10] = 4;
+                Send[Send.Length - 9] = Convert.ToByte('a');
+                Send[Send.Length - 8] = Convert.ToByte('r');
+                Send[Send.Length - 7] = Convert.ToByte('p');
+                Send[Send.Length - 6] = Convert.ToByte('a');
+            }
             //Set frame data
             SetFrame();
             SetType("PTR");
@@ -358,7 +404,17 @@ namespace DNSChecker
             }
             else if(webaddress.Contains(':'))
             {
+                List<string> stringlist = new List<string>();
                 addressparts = webaddress.Split(':');
+                foreach(string s in addressparts)
+                {
+                    char[] help = s.ToArray();
+                    for (int i=0;i<help.Length;i++)
+                    {
+                        stringlist.Add(Convert.ToString(help[i]));
+                    }
+                }
+                addressparts = stringlist.ToArray();
             }
             return addressparts;
         }
@@ -415,14 +471,14 @@ namespace DNSChecker
                     }
                     break;
                 case "AAAA":
-                    //Set startcounter to offset
                     answer = "";
+                    //Set startcounter to offset
                     startcounter = 31 + host.Length;
                     for (int i = startcounter; i < receive.Length; i++)
                     {
+                        //Dont read empty bytes
                         if (receive[i] != 0)
                         {
-
                             answer += Convert.ToChar(receive[i]);
                         }
                     }
@@ -436,6 +492,7 @@ namespace DNSChecker
                     {
                         if (receive[i] != 0)
                         {
+                            //Dont read empty bytes
                             if (receive[i] < 20)
                             {
                                 answer += '.';
@@ -453,13 +510,22 @@ namespace DNSChecker
                     ShowOutput("Address: " + answer);
                     break;
                 case "PTR":
-                    //Set startcounter to offset
-                    startcounter = host.Length + 44/*in-addr.arpa*/;
+                    //Set startcounter to offset depending on used IP version
+                    if(ipversion=="v4")
+                    {
+                        startcounter = host.Length + 44;//in-addr.arpa
+                    }
+                    else if (ipversion == "v6")
+                    {
+                        startcounter = length + 13 + 22 + 8;//ip6.arpa
+                    }
                     answer = "";
                     for (int i = startcounter; i < receive.Length; i++)
                     {
+                        //Dont read empty bytes
                         if (receive[i] != 0)
                         {
+                            //Sort out counter to labels
                             if (receive[i] < 20)
                             {
                                 answer += '.';
