@@ -153,7 +153,6 @@ namespace DNSChecker
             host = server.Host;
 
             this.host = host;
-
             Send = new byte[18 + host.Length/*Frame data + length of host*/];
             //Write the host to the array
             for (int i = 0; i < host.Length; i++)
@@ -174,7 +173,6 @@ namespace DNSChecker
             SetFrame();
             SetType("MX");
             SendToDNS();
-
             //Get the IPv4 of the mail server
             try
             {
@@ -289,6 +287,7 @@ namespace DNSChecker
                     }
                     break;
                 }
+                //Frame data for a PTR request (all IP's should end to "ip6.arpa")
                 Send[Send.Length - 14] = 3;
                 Send[Send.Length - 13] = Convert.ToByte('i');
                 Send[Send.Length - 12] = Convert.ToByte('p');
@@ -312,7 +311,7 @@ namespace DNSChecker
         /// <summary>
         /// Sends the bufferarray to the DNS server
         /// </summary>
-        public void SendToDNS()
+        private void SendToDNS()
         {
             //Connect to DNS
             socket.Connect(dnsendpoint);
@@ -398,10 +397,12 @@ namespace DNSChecker
         private string[] SplitAddress(string webaddress)
         {
             string[] addressparts = new string[webaddress.Length];
+            //IPv4
             if (webaddress.Contains('.'))
             {
                  addressparts = webaddress.Split('.');
             }
+            //IPv6
             else if(webaddress.Contains(':'))
             {
                 List<string> stringlist = new List<string>();
