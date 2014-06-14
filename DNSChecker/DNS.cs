@@ -175,33 +175,14 @@ namespace DNSChecker
             SetType("MX");
             SendToDNS();
             //Get the IPv4 of the mail server
-            try
+            string[] temp = host.Split('.');
+            if(!answer.Contains(temp[0]))
             {
-                //Try the answer itself
-                GetIPv4(answer);
+                GetIPv4(answer+'.'+host);
             }
-            catch
+            else
             {
-                try
-                {
-                    foreach (string s in domains)
-                    {
-                        //Try answer with top level domain (might be cut out in the receive array)
-                        GetIPv4(answer + s);
-                    }
-                }
-                catch
-                {
-                    try
-                    {
-                        ////Try anwer with the whole questoin again(might be cut out in the receive array)
-                        GetIPv4(answer + host);
-                    }
-                    catch
-                    {
-                        throw new NotImplementedException();
-                    }
-                }
+                GetIPv4(answer);
             }
         }
 
@@ -452,12 +433,12 @@ namespace DNSChecker
             {
                 case "A":
                     answer = "";
-                    //Set startcounter to offset
-                    startcounter = 30 + host.Length;
-                    if (receive[7] == 0)
+                    /*if(receive[7]==0)
                     {
                         break;
-                    }
+                    }*/
+                    //Set startcounter to offset
+                    startcounter = 30 + host.Length;
                     for (int i = startcounter; i < receive.Length; )
                     {
                         for (int j = 0; j < 4 && i < receive.Length; j++, i++)
@@ -480,7 +461,7 @@ namespace DNSChecker
                     answer = "";
                     //Set startcounter to offset
                     startcounter = 30 + host.Length;
-                    for (int i = startcounter; i < receive.Length; i++)
+                    for (int i = startcounter; i <= startcounter+16/*length of IPv6 address*/; i++)
                     {
                         //Inserts leading 0
                         if (receive[i] < 16)
@@ -493,14 +474,22 @@ namespace DNSChecker
                         }
                     }
                     //Insert ':'
-                    for (int j = 1; j < answer.Length; j++)
+                    string answernew = "";
+                    for (int j = 1,k=0; j < answer.Length&&k<answer.Length; j++,k++)
                     {
                         if(j%4==0)
                         {
-                            answer = answer.Insert(j, ":");
+                            answernew += answer[k] + ":";
+                            //j++;
+                        }
+                        else
+                        {
+                            answernew += answer[k];
                         }
                     }
-                    ShowOutput("Address: " + answer);
+                    //Remove spare symbols
+                    answernew = answernew.Remove(answernew.Length - 2, 2);
+                    ShowOutput("Address: " + answernew);
                     break;
                 case "MX":
                     answer = "";

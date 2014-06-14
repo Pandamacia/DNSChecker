@@ -107,6 +107,7 @@
             this.txtResult.Multiline = true;
             this.txtResult.Name = "txtResult";
             this.txtResult.ReadOnly = true;
+            this.txtResult.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtResult.Size = new System.Drawing.Size(267, 156);
             this.txtResult.TabIndex = 7;
             // 
@@ -120,7 +121,7 @@
             this.label1.Text = "Hint: Please be careful with copy-paste. Often it will insert new lines without s" +
     "howing it.";
             // 
-            // Form1
+            // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -134,7 +135,7 @@
             this.Controls.Add(this.lblServer);
             this.Controls.Add(this.lblHost);
             this.Controls.Add(this.lblTypeofLookup);
-            this.Name = "Form1";
+            this.Name = "MainWindow";
             this.Text = "DNSChecker";
             this.ResumeLayout(false);
             this.PerformLayout();
