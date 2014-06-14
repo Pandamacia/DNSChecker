@@ -174,7 +174,7 @@ namespace DNSChecker
             SetFrame();
             SetType("MX");
             SendToDNS();
-            //Get the IPv4 of the mail server
+            //Get the IPv4 of the mailserver
             string[] temp = host.Split('.');
             if(!answer.Contains(temp[0]))
             {
@@ -433,10 +433,6 @@ namespace DNSChecker
             {
                 case "A":
                     answer = "";
-                    /*if(receive[7]==0)
-                    {
-                        break;
-                    }*/
                     //Set startcounter to offset
                     startcounter = 30 + host.Length;
                     for (int i = startcounter; i < receive.Length; )
@@ -447,7 +443,7 @@ namespace DNSChecker
                         }
                         if (!answer.StartsWith("0"))
                         {
-                            answers.Add("IP: " + answer.TrimEnd('.'));
+                            answers.Add("IPv4: " + answer.TrimEnd('.'));
                         }
                         answer = "";
                         i += 12;//Bytes to next IP address
@@ -480,7 +476,6 @@ namespace DNSChecker
                         if(j%4==0)
                         {
                             answernew += answer[k] + ":";
-                            //j++;
                         }
                         else
                         {
@@ -489,7 +484,7 @@ namespace DNSChecker
                     }
                     //Remove spare symbols
                     answernew = answernew.Remove(answernew.Length - 2, 2);
-                    ShowOutput("Address: " + answernew);
+                    ShowOutput("IPv6: " + answernew);
                     break;
                 case "MX":
                     answer = "";
@@ -517,6 +512,7 @@ namespace DNSChecker
                     ShowOutput("Address: " + answer);
                     break;
                 case "PTR":
+                    answer = "";
                     //Set startcounter to offset depending on used IP version
                     if (ipversion == "v4")
                     {
@@ -526,7 +522,6 @@ namespace DNSChecker
                     {
                         startcounter = length + 13 + 22 + 8;//ip6.arpa
                     }
-                    answer = "";
                     for (int i = startcounter; i < receive.Length; i++)
                     {
                         //Dont read empty bytes
