@@ -41,6 +41,7 @@ namespace DNSChecker
             answers = new List<string>();
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, 1000);
+            
             dnsserver = IPAddress.Parse(dnsip);
             dnsendpoint = new IPEndPoint(dnsserver, 53);
             //Events
@@ -369,8 +370,8 @@ namespace DNSChecker
                     break;
                 case "AAAA":
                     //AAAA = 28
-                    Send[Send.Length - 3] = 0xC;
-                    Send[Send.Length - 4] = 1;
+                    Send[Send.Length - 3] = 28;
+                    Send[Send.Length - 4] = 0;
                     qtype = "AAAA";
                     break;
                 case "MX":
@@ -453,6 +454,10 @@ namespace DNSChecker
                     answer = "";
                     //Set startcounter to offset
                     startcounter = 30 + host.Length;
+                    if (receive[7] == 0)
+                    {
+                        break;
+                    }
                     for (int i = startcounter; i < receive.Length; )
                     {
                         for (int j = 0; j < 4 && i < receive.Length; j++, i++)
@@ -474,13 +479,25 @@ namespace DNSChecker
                 case "AAAA":
                     answer = "";
                     //Set startcounter to offset
-                    startcounter = 31 + host.Length;
+                    startcounter = 30 + host.Length;
                     for (int i = startcounter; i < receive.Length; i++)
                     {
-                        //Dont read empty bytes
-                        if (receive[i] != 0)
+                        //Inserts leading 0
+                        if (receive[i] < 16)
                         {
-                            answer += Convert.ToChar(receive[i]);
+                            answer += "0" + receive[i].ToString("X");
+                        }
+                        else
+                        {
+                            answer += receive[i].ToString("X");
+                        }
+                    }
+                    //Insert ':'
+                    for (int j = 1; j < answer.Length; j++)
+                    {
+                        if(j%4==0)
+                        {
+                            answer = answer.Insert(j, ":");
                         }
                     }
                     ShowOutput("Address: " + answer);
@@ -512,7 +529,7 @@ namespace DNSChecker
                     break;
                 case "PTR":
                     //Set startcounter to offset depending on used IP version
-                    if(ipversion=="v4")
+                    if (ipversion == "v4")
                     {
                         startcounter = host.Length + 44;//in-addr.arpa
                     }
